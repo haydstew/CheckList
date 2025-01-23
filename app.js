@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/compat/app";
 import {
   doc,
   getDocs,
@@ -6,7 +6,7 @@ import {
   updateDoc,
   getFirestore,
   collection,
-} from "firebase/firestore";
+} from "firebase/compat/firestore";
 
 const sw = new URL("service-worker.js", import.meta.url);
 if ("serviceWorker" in navigator) {
