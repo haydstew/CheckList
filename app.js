@@ -1,3 +1,13 @@
+import { initializeApp } from "firebase/app";
+import {
+  doc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  getFirestore,
+  collection,
+} from "firebase/firestore";
+
 const sw = new URL("service-worker.js", import.meta.url);
 if ("serviceWorker" in navigator) {
   const s = navigator.serviceWorker;
@@ -15,19 +25,17 @@ if ("serviceWorker" in navigator) {
     .catch((err) => console.error("Service Worker Error:", err));
 }
 
-// No need to import Firebase, it's already globally available from the CDN
 const firebaseConfig = {
-  apiKey: "AIzaSyC4P6pJMOlEBef3ARByNoysmx-zR7BE85M",
-  authDomain: "pwa-to-do-app-8bba5.firebaseapp.com",
-  projectId: "pwa-to-do-app-8bba5",
-  storageBucket: "pwa-to-do-app-8bba5.firebasestorage.app",
-  messagingSenderId: "899910419626",
-  appId: "1:899910419626:web:1ba0790ca226f2f5ba7cd3",
+  apiKey: "AIzaSyCuWLYWUJ2R4v6ptAKcL2jmXJPDSGl7uW0",
+  authDomain: "info5146.firebaseapp.com",
+  projectId: "info5146",
+  storageBucket: "info5146.firebasestorage.app",
+  messagingSenderId: "711911517967",
+  appId: "1:711911517967:web:cadd485436fb294a85987a",
 };
 
-// Initialize Firebase using the global firebase object
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
@@ -41,6 +49,7 @@ window.addEventListener("load", () => {
 addTaskBtn.addEventListener("click", async () => {
   const task = taskInput.value.trim();
   if (task) {
+    const taskInput = document.getElementById("taskInput");
     const taskText = sanitizeInput(taskInput.value.trim());
 
     if (taskText) {
@@ -48,27 +57,25 @@ addTaskBtn.addEventListener("click", async () => {
       renderTasks();
       taskInput.value = "";
     }
+    renderTasks();
   }
 });
 
 // Remove Task
 taskList.addEventListener("click", async (e) => {
   if (e.target.tagName === "LI") {
-    await firebase
-      .firestore()
-      .doc("todos/" + e.target.id)
-      .update({
-        completed: true,
-      });
+    await updateDoc(doc(db, "todos", e.target.id), {
+      completed: true,
+    });
   }
   renderTasks();
 });
 
 async function renderTasks() {
-  const tasks = await getTasksFromFirestore();
+  var tasks = await getTasksFromFirestore();
   taskList.innerHTML = "";
 
-  tasks.forEach((task) => {
+  tasks.forEach((task, index) => {
     if (!task.data().completed) {
       const taskItem = document.createElement("li");
       taskItem.id = task.id;
@@ -79,15 +86,15 @@ async function renderTasks() {
 }
 
 async function addTaskToFirestore(taskText) {
-  await firebase.firestore().collection("todos").add({
+  await addDoc(collection(db, "todos"), {
     text: taskText,
     completed: false,
   });
 }
 
 async function getTasksFromFirestore() {
-  const data = await firebase.firestore().collection("todos").get();
-  const userData = [];
+  var data = await getDocs(collection(db, "todos"));
+  let userData = [];
   data.forEach((doc) => {
     userData.push(doc);
   });
@@ -103,3 +110,13 @@ function sanitizeInput(input) {
 window.addEventListener("error", function (event) {
   console.error("Error occurred: ", event.message);
 });
+
+import log from "loglevel";
+
+// Set the log level (trace, debug, info, warn, error)
+log.setLevel("info");
+
+// Example logs
+log.info("Application started");
+log.debug("Debugging information");
+log.error("An error occurred");
