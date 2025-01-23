@@ -1,12 +1,12 @@
-import { initializeApp } from "firebase/app";
-import {
-  doc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  getFirestore,
-  collection,
-} from "firebase/firestore";
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+// import {
+//   doc,
+//   getDocs,
+//   addDoc,
+//   updateDoc,
+//   getFirestore,
+//   collection,
+// } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
 const sw = new URL("service-worker.js", import.meta.url);
 if ("serviceWorker" in navigator) {
@@ -111,12 +111,12 @@ window.addEventListener("error", function (event) {
   console.error("Error occurred: ", event.message);
 });
 
-import log from "loglevel";
+// import log from "loglevel";
 
-// Set the log level (trace, debug, info, warn, error)
-log.setLevel("info");
+// // Set the log level (trace, debug, info, warn, error)
+// log.setLevel("info");
 
-// Example logs
-log.info("Application started");
-log.debug("Debugging information");
-log.error("An error occurred");
+// // Example logs
+// log.info("Application started");
+// log.debug("Debugging information");
+// log.error("An error occurred");
