@@ -34,8 +34,8 @@ const firebaseConfig = {
   appId: "1:899910419626:web:1ba0790ca226f2f5ba7cd3",
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.getFirestore(app);
 
 const taskInput = document.getElementById("taskInput");
 const addTaskBtn = document.getElementById("addTaskBtn");
