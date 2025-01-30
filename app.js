@@ -80,6 +80,7 @@ async function renderTasks() {
       const taskItem = document.createElement("li");
       taskItem.id = task.id;
       taskItem.textContent = task.data().text;
+      taskItem.tabIndex = 0;
       taskList.appendChild(taskItem);
     }
   });
