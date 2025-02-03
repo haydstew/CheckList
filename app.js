@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import {
   doc,
   getDocs,
+  getDoc,
   addDoc,
   updateDoc,
   getFirestore,
@@ -133,15 +134,96 @@ taskList.addEventListener("keypress", async function (e) {
 
 //Call in the event listener for page load
 async function getApiKey() {
-  let snapshot = await getDocs(doc(db, "apikey", "googlegenai"));
-  console.log(snapshot);
-  apiKey = snapshot.data().key;
-  genAI = new GoogleGenerativeAI(apiKey);
-  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  let snapshot = await getDoc(doc(db, "apikey", "googlegenai"));
+  if (snapshot.exists()) {
+    apiKey = snapshot.data().key;
+    genAI = new GoogleGenerativeAI(apiKey);
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  } else {
+    console.error("No API key found in Firestore");
+  }
 }
 
+window.addEventListener("load", async () => {
+  await getApiKey();
+  renderTasks();
+});
+
 async function askChatBot(request) {
-  return await model.generateContent(request);
+  if (!model) {
+    console.error(
+      "Generative model is not initialized. Ensure getApiKey() runs first."
+    );
+    appendMessage("AI is not available right now. Please try again later.");
+    return;
+  }
+  try {
+    let response = await model.generateContent(request);
+    appendMessage(response.text());
+  } catch (error) {
+    console.error("AI request failed:", error);
+    appendMessage("AI response failed. Please try again.");
+  }
+}
+
+function ruleChatBot(request) {
+  if (request.startsWith("add task")) {
+    let task = request.replace("add task", "").trim();
+    if (task) {
+      addTask(task);
+      appendMessage("Task " + task + " added!");
+    } else {
+      appendMessage("Please specify a task to add.");
+    }
+    return true;
+  } else if (request.startsWith("complete")) {
+    let taskName = request.replace("complete", "").trim();
+    if (taskName) {
+      if (removeFromTaskName(taskName)) {
+        appendMessage("Task " + taskName + " marked as complete.");
+      } else {
+        appendMessage("Task not found!");
+      }
+    } else {
+      appendMessage("Please specify a task to complete.");
+    }
+    return true;
+  }
+
+  return false;
+}
+
+let aiButton = document.getElementById("send-btn");
+
+aiButton.addEventListener("click", async () => {
+  let prompt = aiInput.value.trim().toLowerCase();
+  if (prompt) {
+    if (!ruleChatBot(prompt)) {
+      askChatBot(prompt);
+    }
+  } else {
+    appendMessage("Please enter a prompt");
+  }
+});
+
+function appendMessage(message) {
+  let history = document.createElement("div");
+  history.textContent = message;
+  history.className = "history";
+  chatHistory.appendChild(history);
+  aiInput.value = "";
+}
+
+function removeFromTaskName(task) {
+  let ele = document.getElementsByName(task);
+  if (ele.length == 0) {
+    return false;
+  }
+  ele.forEach((e) => {
+    removeTask(e.id);
+    removeVisualTask(e.id);
+  });
+  return true;
 }
 
 window.addEventListener("error", function (event) {
