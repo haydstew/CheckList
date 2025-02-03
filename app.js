@@ -7,6 +7,7 @@ import {
   getFirestore,
   collection,
 } from "firebase/firestore";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const sw = new URL("service-worker.js", import.meta.url);
 if ("serviceWorker" in navigator) {
@@ -129,6 +130,18 @@ taskList.addEventListener("keypress", async function (e) {
   }
   renderTasks();
 });
+
+//Call in the event listener for page load
+async function getApiKey() {
+  let snapshot = await getDocs(doc(db, "apikey", "googlegenai"));
+  apiKey = snapshot.data().key;
+  genAI = new GoogleGenerativeAI(apiKey);
+  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+}
+
+async function askChatBot(request) {
+  return await model.generateContent(request);
+}
 
 window.addEventListener("error", function (event) {
   console.error("Error occurred: ", event.message);
