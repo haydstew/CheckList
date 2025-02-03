@@ -134,6 +134,7 @@ taskList.addEventListener("keypress", async function (e) {
 //Call in the event listener for page load
 async function getApiKey() {
   let snapshot = await getDocs(doc(db, "apikey", "googlegenai"));
+  console.log(snapshot);
   apiKey = snapshot.data().key;
   genAI = new GoogleGenerativeAI(apiKey);
   model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
